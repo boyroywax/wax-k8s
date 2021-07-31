@@ -1,0 +1,5 @@
+eosio-contract-api
+eosio-contract-api/*
+wax-blockchain
+wax-blockchain/*
+DS_Store
