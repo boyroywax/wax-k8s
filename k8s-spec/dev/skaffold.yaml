@@ -1,0 +1,16 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+profiles:
+
+- name: wax-blockchain
+  build:
+    artifacts:
+    - image: booyroywax/wax-production
+      context: ../containers/wax-blockchain
+      docker:
+        dockerfile: ./Dockerfile.dev
+  deploy:
+    kubectl:
+      manifests:
+        - ./wax-blockchain/configmap.yaml
+        - ./wax-blockchain/deployment.yaml

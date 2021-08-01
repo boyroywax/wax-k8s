@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-waxbc
+  namespace: wax-contract-api
+data:
+  # General
+  STAGE: DEVELOPMENT
+  LOG_LEVEL: DEBUG
+  NODEOS_HOME: /root/.local/share/eosio/nodeos
