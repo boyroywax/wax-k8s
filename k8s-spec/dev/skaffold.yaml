@@ -4,11 +4,11 @@ profiles:
 
 - name: wax-blockchain
   build:
-    artifacts:
-    - image: booyroywax/wax-production
-      context: ../containers/wax-blockchain
-      docker:
-        dockerfile: ./Dockerfile.dev
+    # artifacts:
+    # - image: booyroywax/wax-production
+    #   context: ../containers/wax-blockchain
+    #   docker:
+    #     dockerfile: ./Dockerfile.dev
   deploy:
     kubectl:
       manifests:

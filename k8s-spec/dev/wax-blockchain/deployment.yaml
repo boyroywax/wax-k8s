@@ -80,26 +80,26 @@ spec:
     spec:
       containers:
       - name: wax-blockchain
-        image: boyroywax/wax-production:latest
+        image: waxteam/production:v2.0.5wax01
         imagePullPolicy: Always
         # args: ["hypercorn", "--bind", "0.0.0.0:5000", "manage:app"]
         args: ["nodeos", "--genesis-json", "/root/.local/share/eosio/nodeos/config/genesis.json"]
-        startupProbe:
-          httpGet:
-            path: /chain/get_info
-            port: 8888
-        readinessProbe:
-          httpGet:
-            path: /chain/get_info
-            port: 8888
-          initialDelaySeconds: 1
-          periodSeconds: 4
-        livenessProbe:
-          httpGet:
-            path: /chain/get_info
-            port: 8888
-          initialDelaySeconds: 10
-          periodSeconds: 30
+        # startupProbe:
+        #   httpGet:
+        #     path: /chain/get_info
+        #     port: 8888
+        # readinessProbe:
+        #   httpGet:
+        #     path: /chain/get_info
+        #     port: 8888
+        #   initialDelaySeconds: 1
+        #   periodSeconds: 4
+        # livenessProbe:
+        #   httpGet:
+        #     path: /chain/get_info
+        #     port: 8888
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 30
         ports:
         - containerPort: 8888
           name: waxbc-port-1
