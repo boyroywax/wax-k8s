@@ -14,3 +14,15 @@ profiles:
       manifests:
         - ./wax-blockchain/configmap.yaml
         - ./wax-blockchain/deployment.yaml
+
+- name: redis
+  build:
+    artifacts:
+    - image: boyroywax/redis-dev
+      context: ../../redis/
+      docker:
+        dockerfile: ./Dockerfile.prod
+  deploy:
+    kubectl:
+      manifests:
+        - ./redis-dep.yaml

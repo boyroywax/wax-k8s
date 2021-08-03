@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-redis-wax
+  namespace: wax-contract-api
+  labels:
+    name: pv-wax-redis # name can be anything
+spec:
+  storageClassName: manual # same storage class as pvc
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.124.16.3 # ip addres of nfs server
+    path: "/mnt/volume_sfo3_02/nfs" # path to directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-redis-wax
+  namespace: wax-contract-api
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany #  must be the same as PersistentVolume
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-dev
+  namespace: wax-contract-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      tier: backend
+      env: development
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: backend
+        env: development
+    spec:
+      initContainers:
+      - name: disable-thp
+        image: boyroywax/redis-dev:latest
+        volumeMounts:
+          - name: host-sys
+            mountPath: /host-sys
+        command: ["sh", "-c", "echo 'never' >/host-sys/kernel/mm/transparent_hugepage/enabled"]
+      containers:
+      - image: boyroywax/redis-dev:latest
+        name: redis-dev
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 1
+          periodSeconds: 4
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        volumeMounts:
+        - mountPath: /sys
+          name: host-sys
+          readOnly: false
+        - mountPath: /data
+          name: redis-vol1
+          readOnly: false
+          subPath: wax/redis
+      volumes:
+      - name: redis-vol1
+        persistentVolumeClaim:
+          claimName: nfs-pvc-redis-wax
+      - name: host-sys
+        hostPath:
+          path: /sys
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-dev
+  namespace: wax-contract-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
+    tier: backend
+    env: development
+---
