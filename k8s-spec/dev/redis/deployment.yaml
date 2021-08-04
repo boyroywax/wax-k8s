@@ -84,7 +84,6 @@ spec:
           subPath: wax/redis
         - mountPath: /dev/shm
           name: dshm
-
       volumes:
       - name: redis-vol1
         persistentVolumeClaim:

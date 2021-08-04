@@ -68,6 +68,8 @@ spec:
           name: psql-lib
           readOnly: false
           subPath: wax/psql/lib
+        - mountPath: /dev/shm
+          name: dshm
       volumes:
       - name: psql-etc
         persistentVolumeClaim:
@@ -78,6 +80,10 @@ spec:
       - name: psql-lib
         persistentVolumeClaim:
           claimName: nfs-pvc-psql-lib
+      - name: dshm
+        emptyDir:
+          sizeLimit: "4Gi"
+          medium: Memory
       restartPolicy: Always
 ---
 apiVersion: v1
