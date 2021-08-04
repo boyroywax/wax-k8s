@@ -8,18 +8,18 @@ profiles:
         - ./wax-blockchain/configmap.yaml
         - ./wax-blockchain/deployment.yaml
 
-- name: wax-blockchain-replay
+- name: wax-blockchain-tools
   build:
     artifacts:
-    - image: boyroywax/busybox-replay-dev
-      context: ../../wax-blockchain-replay/
+    - image: boyroywax/busybox-tools-dev
+      context: ../../wax-blockchain-tools/
       docker:
         dockerfile: ./Dockerfile
   deploy:
     kubectl:
       manifests:
         - ./wax-blockchain/configmap.yaml
-        - ./wax-blockchain-replay/deployment.yaml
+        - ./wax-blockchain-tools/deployment.yaml
 
 - name: psql
   deploy:
@@ -51,4 +51,4 @@ profiles:
   deploy:
     kubectl:
       manifests:
-      - ../../eosio-contract-api/deployment.yaml
+      - ./eosio-contract-api/deployment.yaml
