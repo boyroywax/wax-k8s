@@ -7,3 +7,6 @@ data:
   SECRET: 09dkdidnmqqqisjsnd77d78eiejdk8
   PGDATA: /var/lib/postgresql/data/pgdata
   POSTGRES_PASSWORD: chocolatechipcookie
+  USER: wax-contract-api
+  PASSWORD: chocolatechipcookie
+  DBNAME:  api-wax-mainnet

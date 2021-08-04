@@ -104,6 +104,8 @@ spec:
           name: waxbc-port-1
         - containerPort: 9876
           name: waxbc-port-2
+        - containerPort: 8080
+          name: waxbc-port-ws
         envFrom:
           - configMapRef:
               name: config-waxbc
@@ -140,6 +142,21 @@ spec:
   ports:
   - port: 8888
     targetPort: 8888
+  selector:
+    app: wax-blockchain
+    tier: backend
+    env: production
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: waxbc-port-ws
+  namespace: wax-contract-api
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
   selector:
     app: wax-blockchain
     tier: backend
