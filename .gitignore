@@ -5,3 +5,4 @@ wax-blockchain/*
 DS_Store
 redis/redis-6.2.0
 redis/*
+k8s-spec/.DS_Store
