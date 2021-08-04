@@ -3,3 +3,5 @@ eosio-contract-api/*
 wax-blockchain
 wax-blockchain/*
 DS_Store
+redis/redis-6.2.0
+redis/*

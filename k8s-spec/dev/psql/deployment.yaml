@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql-dev
+  namespace: wax-contract-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: psql
+      tier: backend
+      env: development
+  template:
+    metadata:
+      labels:
+        app: psql
+        tier: backend
+        env: development
+    spec:
+      containers:
+      - image: postgres:14beta2-buster
+        name: psql-dev
+        ports:
+        - containerPort: 5432
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+          failureThreshold: 6
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - -e
+            - exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+          failureThreshold: 6
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 512Mi
+        securityContext:
+          runAsUser: 1001
+        envFrom:
+        - configMapRef:
+             name: psql-config 
+        volumeMounts:
+        - mountPath: /etc/postgresql
+          name: psql-etc
+          readOnly: false
+          subPath: wax/psql/etc
+        - mountPath: /var/log/postgresql
+          name: psql-log
+          readOnly: false
+          subPath: wax/psql/log
+        - mountPath: /var/lib/postgresql
+          name: psql-lib
+          readOnly: false
+          subPath: wax/psql/lib
+      volumes:
+      - name: psql-etc
+        persistentVolumeClaim:
+          claimName: nfs-pvc-psql-etc
+      - name: psql-log
+        persistentVolumeClaim:
+          claimName: nfs-pvc-psql-log
+      - name: psql-lib
+        persistentVolumeClaim:
+          claimName: nfs-pvc-psql-lib
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: psql-dev
+  namespace: wax-contract-api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: psql
+    tier: backend
+    env: development
+---

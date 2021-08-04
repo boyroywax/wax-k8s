@@ -1,7 +1,6 @@
 apiVersion: skaffold/v2beta10
 kind: Config
 profiles:
-
 - name: wax-blockchain
   build:
     # artifacts:
@@ -14,7 +13,19 @@ profiles:
       manifests:
         - ./wax-blockchain/configmap.yaml
         - ./wax-blockchain/deployment.yaml
-
+- name: psql
+  # build:
+  #   artifacts:
+  #   - image: boyroywax/psql-dev
+  #     context: ../../psql/
+  #     docker:
+  #       dockerfile: ./Dockerfile.prod
+  deploy:
+    kubectl:
+      manifests:
+        - ./psql/configmap.yaml
+        - ./psql/deployment.yaml
+        - ./psql/persistent.yaml
 - name: redis
   build:
     artifacts:
@@ -25,4 +36,4 @@ profiles:
   deploy:
     kubectl:
       manifests:
-        - ./redis-dep.yaml
+        - ./redis/deployment.yaml
