@@ -2,30 +2,33 @@ apiVersion: skaffold/v2beta10
 kind: Config
 profiles:
 - name: wax-blockchain
-  build:
-    # artifacts:
-    # - image: booyroywax/wax-production
-    #   context: ../containers/wax-blockchain
-    #   docker:
-    #     dockerfile: ./Dockerfile.dev
   deploy:
     kubectl:
       manifests:
         - ./wax-blockchain/configmap.yaml
         - ./wax-blockchain/deployment.yaml
+
+- name: wax-blockchain-replay
+  build:
+    artifacts:
+    - image: boyroywax/busybox-replay-dev
+      context: ../../wax-blockchain-replay/
+      docker:
+        dockerfile: ./Dockerfile
+  deploy:
+    kubectl:
+      manifests:
+        - ./wax-blockchain/configmap.yaml
+        - ./wax-blockchain-replay/deployment.yaml
+
 - name: psql
-  # build:
-  #   artifacts:
-  #   - image: boyroywax/psql-dev
-  #     context: ../../psql/
-  #     docker:
-  #       dockerfile: ./Dockerfile.prod
   deploy:
     kubectl:
       manifests:
         - ./psql/configmap.yaml
         - ./psql/deployment.yaml
         - ./psql/persistent.yaml
+
 - name: redis
   build:
     artifacts:
@@ -37,3 +40,15 @@ profiles:
     kubectl:
       manifests:
         - ./redis/deployment.yaml
+
+- name: contract-api
+  build:
+    artifacts:
+    - image: boyroywax/wax-eosio-contract-api
+      context: ../../eosio-contract-api/
+      docker:
+        dockerfile: ./Dockerfile
+  deploy:
+    kubectl:
+      manifests:
+      - ../../eosio-contract-api/deployment.yaml

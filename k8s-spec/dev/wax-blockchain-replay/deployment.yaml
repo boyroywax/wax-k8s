@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-wax-blockchain-data
+  namespace: wax-contract-api
+  labels:
+    name: waxbc-pv-data # name can be anything
+spec:
+  storageClassName: manual # same storage class as pvc
+  capacity:
+    storage: 128Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.124.16.3 # ip addres of nfs server
+    path: "/mnt/volume_sfo3_02/nfs" # path to directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: waxbc-pvc-data
+  namespace: wax-contract-api
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 128Mi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-waxbc-replay
+  namespace: wax-contract-api
+  labels:
+    name: waxbc-replay-pv-config # name can be anything
+spec:
+  storageClassName: manual # same storage class as pvc
+  capacity:
+    storage: 128Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.124.16.3 # ip addres of nfs server
+    path: "/mnt/volume_sfo3_02/nfs" # path to directory
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wax-blockchain-replay
+  namespace: wax-contract-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wax-blockchain-replay
+      tier: backend
+      env: production
+  template:
+    metadata:
+      labels:
+        app: wax-blockchain-replay
+        tier: backend
+        env: production
+    spec:
+      containers:
+      - name: wax-blockchain-replay
+        image: boyroywax/busybox-replay-dev
+        imagePullPolicy: Always
+        # securityContext:
+        #   runAsUser: 1001
+        #   runAsNonRoot: true
+        volumeMounts:
+          - mountPath: /mnt/data
+            name: data-vol
+            readOnly: False
+            subPath: wax/blockchain/data
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: waxbc-pvc-data
+---

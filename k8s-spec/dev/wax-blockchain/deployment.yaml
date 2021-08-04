@@ -9,7 +9,7 @@ metadata:
 spec:
   storageClassName: manual # same storage class as pvc
   capacity:
-    storage: 128Mi
+    storage: 30Gi
   accessModes:
     - ReadWriteMany
   nfs:
@@ -27,7 +27,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 128Mi
+      storage: 30Gi
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -82,24 +82,23 @@ spec:
       - name: wax-blockchain
         image: waxteam/production:v2.0.5wax01
         imagePullPolicy: Always
-        # args: ["hypercorn", "--bind", "0.0.0.0:5000", "manage:app"]
         args: ["nodeos", "--genesis-json", "/root/.local/share/eosio/nodeos/config/genesis.json"]
-        # startupProbe:
-        #   httpGet:
-        #     path: /chain/get_info
-        #     port: 8888
-        # readinessProbe:
-        #   httpGet:
-        #     path: /chain/get_info
-        #     port: 8888
-        #   initialDelaySeconds: 1
-        #   periodSeconds: 4
-        # livenessProbe:
-        #   httpGet:
-        #     path: /chain/get_info
-        #     port: 8888
-        #   initialDelaySeconds: 10
-        #   periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - cleos
+            - get
+            - info
+          initialDelaySeconds: 1
+          periodSeconds: 4
+        livenessProbe:
+          exec:
+            command:
+            - cleos
+            - get
+            - info
+          initialDelaySeconds: 30
+          periodSeconds: 30
         ports:
         - containerPort: 8888
           name: waxbc-port-1
@@ -108,6 +107,13 @@ spec:
         envFrom:
           - configMapRef:
               name: config-waxbc
+        # securityContext:
+        #   runAsUser: 1001
+        #   runAsNonRoot: true
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "pkill", "nodeos"]
         volumeMounts:
           - mountPath: /root/.local/share/eosio/nodeos/data
             name: data-vol
