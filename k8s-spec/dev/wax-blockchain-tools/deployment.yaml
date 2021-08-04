@@ -32,10 +32,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-pv-waxbc-replay
+  name: nfs-pv-waxbc-tools
   namespace: wax-contract-api
   labels:
-    name: waxbc-replay-pv-config # name can be anything
+    name: waxbc-tools-pv-config # name can be anything
 spec:
   storageClassName: manual # same storage class as pvc
   capacity:
@@ -46,39 +46,74 @@ spec:
     server: 10.124.16.3 # ip addres of nfs server
     path: "/mnt/volume_sfo3_02/nfs" # path to directory
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv-wax-blockchain-config
+  namespace: wax-contract-api
+  labels:
+    name: waxbc-pv-config # name can be anything
+spec:
+  storageClassName: manual # same storage class as pvc
+  capacity:
+    storage: 128Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.124.16.3 # ip addres of nfs server
+    path: "/mnt/volume_sfo3_02/nfs" # path to directory
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: waxbc-pvc-config
+  namespace: wax-contract-api
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 128Mi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wax-blockchain-replay
+  name: wax-blockchain-tools
   namespace: wax-contract-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: wax-blockchain-replay
+      app: wax-blockchain-tools
       tier: backend
       env: production
   template:
     metadata:
       labels:
-        app: wax-blockchain-replay
+        app: wax-blockchain-tools
         tier: backend
         env: production
     spec:
       containers:
-      - name: wax-blockchain-replay
-        image: boyroywax/busybox-replay-dev
+      - name: wax-blockchain-tools
+        image: boyroywax/busybox-tools-dev
         imagePullPolicy: Always
-        # securityContext:
-        #   runAsUser: 1001
-        #   runAsNonRoot: true
+        args: ['/usr/bin/src/download.sh', '&&', '/usr/bin/src/replay.sh']
         volumeMounts:
           - mountPath: /mnt/data
             name: data-vol
             readOnly: False
             subPath: wax/blockchain/data
+          - mountPath: /mnt/config
+            name: config-vol
+            readOnly: False
+            subPath: wax/blockchain/config
       volumes:
         - name: data-vol
           persistentVolumeClaim:
             claimName: waxbc-pvc-data
+        - name: config-vol
+          persistentVolumeClaim:
+            claimName: waxbc-pvc-config
 ---

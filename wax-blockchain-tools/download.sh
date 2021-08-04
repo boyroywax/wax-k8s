@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /mnt/data
+cd /mnt/config
 
 curl https://raw.githubusercontent.com/worldwide-asset-exchange/wax-blockchain/develop/samples/mainnet/genesis.json > genesis.json
 curl https://raw.githubusercontent.com/worldwide-asset-exchange/wax-blockchain/develop/samples/mainnet/config.ini > config.ini

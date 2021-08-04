@@ -82,6 +82,9 @@ spec:
           name: redis-vol1
           readOnly: false
           subPath: wax/redis
+        - mountPath: /dev/shm
+          name: dshm
+
       volumes:
       - name: redis-vol1
         persistentVolumeClaim:
@@ -89,6 +92,10 @@ spec:
       - name: host-sys
         hostPath:
           path: /sys
+      - name: dshm
+        emptyDir:
+          sizeLimit: "4Gi"
+          medium: Memory
       restartPolicy: Always
 ---
 apiVersion: v1
